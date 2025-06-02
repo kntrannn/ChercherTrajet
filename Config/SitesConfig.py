@@ -1,82 +1,70 @@
-from Map import Map
+# Read data from csv file and convert to JSON format (element of index 0 is the key, element of index 1 is the value)
 
-def is_in_any_polygon(point, coords_dict):
-        """
-        Check if a point is inside any polygon in the coordinates dictionary.
+import csv
+import json
 
-        Args:
-            point (tuple): The point to check (x, y).
-            coords_dict (dict): The coordinates dictionary.
-
-        Returns:
-            bool: True if the point is inside any polygon, False otherwise.
-        """
-        for v in coords_dict.values():
-            depth = map.list_depth(v)
-            if depth == 4:
-                for ele in v:
-                    for ele2 in ele:
-                        if is_point_in_polygon(point, ele2):
-                            return True
-            elif depth == 3:
-                for ele in v:
-                    if is_point_in_polygon(point, ele):
-                        return True
-        return False
-
-def is_point_in_polygon(point, polygon):
+def load_csv_to_json(csv_file, json_file):
     """
-    Check if a point is inside a polygon using the ray-casting algorithm.
+    Reads a CSV file and converts it to a JSON format where the first column is the key and the second and third columns are the values.
+    Skips the header line.
 
     Args:
-        point (tuple): The point to check (x, y).
-        polygon (list): The polygon vertices [(x1, y1), (x2, y2), ...].
-
-    Returns:
-        bool: True if the point is inside the polygon, False otherwise.
+        csv_file (str): Path to the input CSV file.
+        json_file (str): Path to the output JSON file.
     """
-    x, y = point
-    n = len(polygon)
-    inside = False
+    data = {}
+    with open(csv_file, mode='r', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        next(reader, None)  # Skip the header line
+        for row in reader:
+            if len(row) >= 4:  # Ensure there are at least four columns
+                key = row[0].strip()
+                value = (float(row[3].strip()), float(row[2].strip())) # (longitude, latitude)
+                data[key] = value
 
-    p1x, p1y = polygon[0]
-    for i in range(n + 1):
-        p2x, p2y = polygon[i % n]
-        if y > min(p1y, p2y):
-            if y <= max(p1y, p2y):
-                if x <= max(p1x, p2x):
-                    if p1y != p2y:
-                        xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                    if p1x == p2x or x <= xinters:
-                        inside = not inside
-        p1x, p1y = p2x, p2y
+    with open(json_file, 'w', encoding='utf-8') as file:
+        json.dump(data, file, indent=4)
 
-    return inside
-
-# Remove all the sites that are not in any polygon
-def remove_sites_not_in_polygon(sites, coords_dict):
+def load_csv_to_database(csv_file, db_file):
     """
-    Remove sites that are not in any polygon in the coordinates dictionary.
+    Reads a CSV file and converts it to a JSON format where the first column is the key and the second column is the value.
+    Skips the header line.
 
     Args:
-        sites (dict): The sites dictionary.
-        coords_dict (dict): The coordinates dictionary.
-
-    Returns:
-        dict: The filtered sites dictionary.
+        csv_file (str): Path to the input CSV file.
+        db_file (str): Path to the output database file.
     """
-    filtered_sites = {}
-    for k, v in sites.items():
-        if is_in_any_polygon(v, coords_dict):
-            filtered_sites[k] = v
-    return filtered_sites
+    with open(csv_file, mode='r', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        next(reader, None)  # Skip the header line
+        sites = []
+        for i, row in enumerate(reader):
+            if len(row) >= 2:  # Ensure there are at least two columns
+                site = {
+                    "id": i + 1,  # Start IDs from 1
+                    "name": row[0].strip(),
+                    "description": row[13].strip(),
+                    "coordinates": (float(row[3].strip()), float(row[2].strip())),  # (longitude, latitude)
+                }
+                sites.append(site)
+
+    with open(db_file, 'w', encoding='utf-8') as file:
+        json.dump(sites, file, indent=4)
+
+def check_duplication(json_file):
+    with open(json_file, mode='r', encoding='utf-8') as file:
+        data = json.load(file)
+
+        sites = {}
+        for site in data:
+            value = sites.get(site["name"], 0)
+            sites[site["name"]] = value + 1
+
+        for k, v in sites.items():
+            if v > 1:
+                print(k)
 
 if __name__ == "__main__":
-    map = Map(100, 100)
-    filtered_sites = remove_sites_not_in_polygon(map.sites, map.coordinates_dict)
-    print("Filtered Sites:", filtered_sites)
-
-    # Dump the filtered sites to a JSON file
-    import json
-    with open("filtered_sites.json", "w") as f:
-        json.dump(filtered_sites, f, indent=4)
+    # load_csv_to_json("Database/ExternalData/datatourisme-reg-ara.csv", "Database/ExternalData/sites_touristiques.json")
+    # load_csv_to_database("Database/ExternalData/datatourisme-reg-ara.csv", "Database/Entity/sites.json")
+    check_duplication("Database/Entity/sites.json")

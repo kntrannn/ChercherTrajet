@@ -2,31 +2,31 @@
     {
         "id": 1,
         "username": "John Doe",
-        "password": "abc",
-        "carbon_footprint": 10
+        "password": "abc"
     },
     {
         "id": 2,
         "username": "Jane Doe",
-        "password": "def",
-        "carbon_footprint": 20
+        "password": "def"
     },
     {
         "id": 3,
         "username": "Jim Doe",
-        "password": "ghi",
-        "carbon_footprint": 30
+        "password": "ghi"
     },
     {
         "id": 4,
         "username": "sdfsdf",
-        "password": "sdfsd",
-        "carbon_footprint": 0
+        "password": "sdfsd"
     },
     {
         "id": 5,
         "username": "Bao Anh",
-        "password": "abc",
-        "carbon_footprint": 0
+        "password": "abc"
+    },
+    {
+        "id": 6,
+        "username": "baoanhdepzai",
+        "password": "123"
     }
 ]

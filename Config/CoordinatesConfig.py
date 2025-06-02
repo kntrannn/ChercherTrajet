@@ -11,7 +11,7 @@ def load_raw_coordinates():
         for ele in data["features"]:
             coordinates[ele["properties"]["nom"]] = ele["geometry"]["coordinates"]
 
-    with open("Database/ExternalData/result.json", "w") as f:
+    with open("Database/ExternalData/communes.json", "w") as f:
         json.dump(coordinates, f, indent=4)
 
 def load_raw_coordinates2():
