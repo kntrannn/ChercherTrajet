@@ -6,24 +6,17 @@ from View.SignUpWindow import SignUpWindow
 
 class LoginWindow(tk.Tk):
     """
-    A window for logging in.
-
+    A window for user login.
+    Args:
+        None
     Attributes:
-        canva: Canvas widget for the background image.
-        title1: Customized label for the title.
-        label1: Customized label for "Username".
-        username: Entry widget for entering the username.
-        label2: Customized label for "Password".
-        password: Entry widget for entering the password.
-        button1: Customized button for logging in.
-        button2: Customized button for creating a new account.
-        label3: Customized label for displaying error messages.
+        user: The current user object after successful login.
     """
     def __init__(self):
         ctk.set_appearance_mode("light")
 
         super().__init__()
-        self.title("Your personal travel map")
+        self.title("Finding my way")
         self.geometry("500x500")
         self.resizable(False, False)
 
@@ -36,7 +29,7 @@ class LoginWindow(tk.Tk):
         self.canva.create_image(0, 0, image=img1, anchor="nw")
 
 
-        self.title1 = ctk.CTkLabel(self,text = "Your personal travel map", font = ("Impact", 25), text_color='#354f52', fg_color= "#f5f6f9")
+        self.title1 = ctk.CTkLabel(self,text = "Finding my way", font = ("Impact", 25), text_color='#354f52', fg_color= "#f5f6f9")
         self.title1.place(x = 130, y = 50)
 
         self.label1 = ctk.CTkLabel(self,text = "Username", font = ("Arial", 11, 'bold'), text_color = '#354f52', fg_color= "#f5f6f9")

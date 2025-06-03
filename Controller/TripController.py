@@ -4,19 +4,17 @@ from Utility.AStar import a_star_maximize_sites
 
 def add_new_trip(user_id, start_site, end_site, vehicle, sites):
     """
-    Adds a new trip for a user after validating the input data and calculating the carbon footprint.
-    
+    Adds a new trip for the user with the specified start and end sites, vehicle, and list of sites.
     Args:
         user_id (int): The ID of the user.
-        departure_country (str): The name of the departure country.
-        destination_country (str): The name of the destination country.
-        departure_date (datetime): The departure date of the trip.
-        return_date (datetime): The return date of the trip.
-        transport (str): The mode of transport.
-        duration (str): The duration of the trip.
-        
+        start_site (str): The name of the starting site.
+        end_site (str): The name of the ending site.
+        vehicle (str): The type of vehicle used for the trip.
+        sites (list): A list of Site objects.
     Returns:
-        tuple: A tuple containing a boolean indicating success and a message.
+        tuple: A tuple containing a boolean indicating success or failure, and a message.
+    Raises:
+        ValueError: If any of the input fields are empty or if the start and end sites are the same.
     """
     if start_site == "" or end_site == "" or vehicle == "":
         return False, "Please type all fields"
@@ -31,6 +29,8 @@ def add_new_trip(user_id, start_site, end_site, vehicle, sites):
         return False, "No valid path found between the selected sites"
 
     trip = Trip(user_id, start_site_obj, end_site_obj, vehicle, sites_visited=path)
+    trip.calculate_distance()
+    trip.calculate_carbon_footprint()
 
     return add_trip(trip), "Trip added successfully"
 
@@ -46,7 +46,6 @@ def get_site_by_name(name, sites):
         Site: The Site object with the specified name, or None if not found.
     """
     for site in sites:
-        print(site.name, name)
         if site.name == name:
             return site
     return None

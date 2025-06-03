@@ -6,16 +6,10 @@ from View.MapWindow import MapWindow
 class SignUpWindow(tk.Tk):
     """
     A window for creating a new account.
-
+    Args:
+        None
     Attributes:
-        canva: Canvas widget for the background image.
-        title1: Customized label for the title.
-        label1: Customized label for "Username".
-        username: Entry widget for entering the username.
-        label2: Customized label for "Password".
-        password: Entry widget for entering the password.
-        button1: Customized button for creating a new account.
-        label3: Customized label for displaying error messages.
+        user: The current user object after successful registration.
     """
     def __init__(self):
         super().__init__()

@@ -3,65 +3,61 @@ from Repository.SiteRepository import get_list_of_sites
 from Repository.TripRepository import get_all_trips_by_user_id
 import math
 
-def get_all_trips(user_id, canvas_width, canvas_height):
+def get_all_trips(user_id, sites):
     """
-    Retrieves all trips for a given user ID.
-
+    Retrieves all trips for a given user.
     Args:
         user_id (int): The ID of the user.
-
+        sites (list): A list of Site objects.
     Returns:
-        list: A list of trips associated with the user.
+        list: A list of all trips for the user.
     """
-    trips = get_all_trips_by_user_id(user_id)
-    for trip in trips:
-        start_coordinates = trip.start_site.coordinates
-        end_coordinates = trip.end_site.coordinates
-        trip.start_site.coordinates = xy_from_lat_long(start_coordinates[1], start_coordinates[0], canvas_width, canvas_height)
-        trip.end_site.coordinates = xy_from_lat_long(end_coordinates[1], end_coordinates[0], canvas_width, canvas_height)
-
-        visited_sites = trip.sites_visited
-        for site in visited_sites:
-            coordinates = site.coordinates
-            site.coordinates = xy_from_lat_long(coordinates[1], coordinates[0], canvas_width, canvas_height)
-    return trips
+    return get_all_trips_by_user_id(user_id, sites)
 
 def get_all_communes_with_x_y(canvas_width, canvas_height):
     """
     Retrieves a list of all communes.
-    
+    Args:
+        canvas_width (int): Width of the canvas.
+        canvas_height (int): Height of the canvas.
     Returns:
         list: A list of all communes.
     """
     communes = get_list_of_communes()
     for commune in communes:
-        coordinates = commune.coordinates
-        commune.coordinates = convert_whole_coordinates(coordinates, canvas_width, canvas_height)
+        coordinates = commune.coordinates_map
+        commune.coordinates_canvas = convert_whole_coordinates(coordinates, canvas_width, canvas_height)
     return communes
 
 def get_all_filtered_sites_with_x_y(canvas_width, canvas_height, min_distance):
     """
     Retrieves a list of all sites with converted coordinates and filtered by minimum distance.
-
     Args:
         canvas_width (int): Width of the canvas.
         canvas_height (int): Height of the canvas.
         min_distance (float): Minimum distance between points.
-
     Returns:
         list: A list of all filtered sites with converted coordinates.
     """
     sites = get_list_of_sites()
     for site in sites:
-        coordinates = site.coordinates
-        site.coordinates = xy_from_lat_long(coordinates[1], coordinates[0], canvas_width, canvas_height)
+        coordinates = site.coordinates_map
+        site.coordinates_canvas = xy_from_lat_long(coordinates[1], coordinates[0], canvas_width, canvas_height)
     sites = filter_points(sites, min_distance)
     return sites
 
 def get_centroid(communes, sites):
+    """
+    Calculates the centroid of all communes and sites.
+    Args:
+        communes (list): A list of Commune objects.
+        sites (list): A list of Site objects.
+    Returns:
+        tuple: The centroid coordinates (x, y).
+    """
     all_points_communes = []
     for commune in communes:
-        v = commune.coordinates
+        v = commune.coordinates_canvas
         depth = list_depth(v)
         if depth == 4:
             for ele in v:
@@ -77,7 +73,7 @@ def get_centroid(communes, sites):
     sum_y = sum(ys_regions)
 
     # Collect all site coordinates efficiently
-    all_points_sites = [site.coordinates for site in sites]
+    all_points_sites = [site.coordinates_canvas for site in sites]
     xs_sites, ys_sites = zip(*all_points_sites)
     sum_x += sum(xs_sites)
     sum_y += sum(ys_sites)
@@ -147,6 +143,14 @@ def list_depth(lst):
     return 1 + max(list_depth(item) for item in lst)
 
 def distance(p1, p2):
+    """
+    Calculates the Euclidean distance between two points.
+    Args:
+        p1 (tuple): The first point (x1, y1).
+        p2 (tuple): The second point (x2, y2).
+    Returns:
+        float: The Euclidean distance between the two points.
+    """
     return math.hypot(p1[0] - p2[0], p1[1] - p2[1])
 
 def filter_points(points, min_distance):
@@ -161,8 +165,8 @@ def filter_points(points, min_distance):
     """
     kept_points = []
     for site in points:
-        p = site.coordinates
-        if all(distance(p, kp.coordinates) >= min_distance for kp in kept_points):
+        p = site.coordinates_canvas
+        if all(distance(p, kp.coordinates_canvas) >= min_distance for kp in kept_points):
             kept_points.append(site)
     
     return kept_points

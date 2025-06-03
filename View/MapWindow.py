@@ -1,30 +1,26 @@
 import tkinter as tk
 import customtkinter as ctk
-from PIL import Image, ImageTk, ImageSequence
+from PIL import Image
 from tkinter import messagebox
 from Model.Map import Map
 from View.InfoWindow import InfoWindow
+from View.TripDetailsWindow import TripDetailsWindow
+from View.ShowAllTripsWindow import ShowAllTripsWindow
 from Controller.MapController import get_all_communes_with_x_y, get_all_filtered_sites_with_x_y, get_centroid, list_depth, get_all_trips
+
 class MapWindow(tk.Tk):
     """
-    A window for displaying the personal world map and providing options for trip planning and management.
-
+    A window that displays a personal world map with the user's visited and to-visit countries, sites, and trips.
+    Args:
+        user: The current user object.
     Attributes:
         user: The current user object.
-        canevas: The zoomable canvas for displaying the map.
-        map: The map object containing country coordinates.
-        bg_image: The background image for the animated map.
-        frames: The frames of the animated map.
-        quit_button: Button to quit the application.
-        side_bar: Frame for displaying side bar buttons.
-        top_spacer: Spacer frame to position side bar buttons.
-        canva: Canvas for displaying icons on the top.
-        button1: Button to show all trips.
-        button2: Button to plan a new trip.
-        button3: Button to change password.
-        button4: Button to sign out.
-        bottom_spacer: Spacer frame to position side bar buttons.
-        current_frame: The current frame of the animated map.
+        sites: A list of all filtered sites with coordinates.
+        bg_image: The background image for the map.
+        frames: A list of frames for the animated background.
+        canva: A canvas for displaying the map and sites.
+        communes: A list of all communes with coordinates.
+        centroid: The centroid of all communes and sites.
     """
     def __init__(self, user):
         super().__init__()
@@ -42,13 +38,8 @@ class MapWindow(tk.Tk):
         icon5 = Image.open("View/pictures/log_out_icon.png")
         icon6 = Image.open("View/pictures/quit_icon.png")
 
-        # Load the animated GIF using PIL
-        self.bg_image = Image.open("View/pictures/waves_map.gif")
-        self.frames = [ImageTk.PhotoImage(frame.resize((self.winfo_screenwidth(), self.winfo_screenheight()), Image.LANCZOS)) for frame in
-                   ImageSequence.Iterator(self.bg_image)]
-
         # Quit button
-        self.quit_button = ctk.CTkButton(self, text="Quit", text_color= "#f5f6f9", fg_color= '#354f52', font=("Arial", 28, "bold"), hover_color = "#e2eafc", border_color = '#354f52')
+        self.quit_button = ctk.CTkButton(self, text="Quit", text_color= "#f5f6f9", fg_color= '#354f52', font=("Arial", 28, "bold"), hover_color = "#e2eafc", border_color = '#354f52', image=ctk.CTkImage(dark_image=icon6, light_image=icon6))
         self.quit_button.bind("<Button-1>", self.quit)
         self.quit_button.pack(side="top", fill="x")
 
@@ -71,7 +62,8 @@ class MapWindow(tk.Tk):
         self.button1.pack(side="top", pady=10, padx=10)
 
         # Button to plan a new trip
-        self.button2 = ctk.CTkButton(self.side_bar, text="cc j do", text_color="#f5f6f9", fg_color= "transparent", font=("Arial", 15, "bold"), hover_color = "#e2eafc",border_color = "#f5f6f9", corner_radius= 32, height=2, image = ctk.CTkImage(dark_image=icon3, light_image=icon3))
+        self.button2 = ctk.CTkButton(self.side_bar, text="Show all trips", text_color="#f5f6f9", fg_color= "transparent", font=("Arial", 15, "bold"), hover_color = "#e2eafc",border_color = "#f5f6f9", corner_radius= 32, height=2, image = ctk.CTkImage(dark_image=icon3, light_image=icon3))
+        self.button2.bind("<Button-1>", self.open_show_all_trips_window)
         self.button2.pack(side="top", pady=10, padx=10)
 
         # Button to change password
@@ -105,20 +97,24 @@ class MapWindow(tk.Tk):
         from View.PlanNewTripWindow import PlanNewTripWindow
         PlanNewTripWindow(self, None)
 
+    def open_show_all_trips_window(self, event):
+        """Open the window for showing all trips."""
+        ShowAllTripsWindow(self, self.sites)
+
     def quit(self, event):
         """Close the window."""
         self.destroy()
 
     def sign_out(self):
-        """Sign out the user and open the login window."""
-        from View.SignInWindow import LoginWindow
-        self.destroy()
-        LoginWindow()
+        """Sign out the user and open the login window after confirmation."""
+        if messagebox.askyesno("Confirm Sign Out", "Are you sure you want to sign out?"):
+            from View.SignInWindow import LoginWindow
+            self.destroy()
+            LoginWindow()
 
     def draw_communes(self):
-        """Draw the map with visited and to-visit countries highlighted, centered at the canvas center."""
+        """Draw the communes on the map, centered and scaled to fit the canvas."""
         self.canevas.delete("all")
-        self.canevas.update_idletasks() # Update the canvas before drawing
         canvas_width = self.winfo_screenwidth()
         canvas_height = self.winfo_screenheight()
         cx, cy = self.centroid
@@ -128,7 +124,7 @@ class MapWindow(tk.Tk):
         scale = 52 # Adjust the scale factor as needed
 
         for commune in self.communes:
-            v = commune.coordinates
+            v = commune.coordinates_canvas
             name = commune.name
             description = commune.description
             depth = list_depth(v)
@@ -138,21 +134,21 @@ class MapWindow(tk.Tk):
                     for ele2 in ele:
                         shifted = [((x - cx) * scale + canvas_center_x, (y - cy) * scale + canvas_center_y) for x, y in ele2]
                         polygon = self.canevas.create_polygon(shifted, fill="#354f52", outline="white")
-                        self.canevas.tag_bind(polygon, "<Double-Button-1>", lambda e, n=name, d=description: self.show_info(n, d))
+                        self.canevas.tag_bind(polygon, "<Double-Button-1>", lambda e, n=name, d=description: self.show_info(n, d, False))
             elif depth == 3:  # Country of one polygon
                 for ele in v:
                     shifted = [((x - cx) * scale + canvas_center_x, (y - cy) * scale + canvas_center_y) for x, y in ele]
                     polygon = self.canevas.create_polygon(shifted, fill="#354f52", outline="white")
-                    self.canevas.tag_bind(polygon, "<Double-Button-1>", lambda e, n=name, d=description: self.show_info(n, d))
+                    self.canevas.tag_bind(polygon, "<Double-Button-1>", lambda e, n=name, d=description: self.show_info(n, d, False))
 
-    def show_info(self, name, description):
+    def show_info(self, name, description, is_site):
+        """Open an information window for a specific commune or site."""
         if description == "":
             description = "No description available."
-        InfoWindow(self, name, description)
+        InfoWindow(self, name, description, is_site)
 
     def draw_sites(self):
         """Draw the sites on the map, centered and scaled like the draw_communes method."""
-        self.canevas.update_idletasks()
         canvas_width = self.winfo_screenwidth()
         canvas_height = self.winfo_screenheight()
         cx, cy = self.centroid
@@ -162,17 +158,18 @@ class MapWindow(tk.Tk):
         scale = 52
 
         for site in self.sites:
-            # The coordinates of the site are in the form (x, y)
-            x, y = site.coordinates
+            x, y = site.coordinates_canvas
             name = site.name
             description = site.description
             shifted = ((x - cx) * scale + canvas_center_x, (y - cy) * scale + canvas_center_y)
-            point = self.canevas.create_oval(shifted[0] - 5, shifted[1] - 5, shifted[0] + 5, shifted[1] + 5, fill="red")
-            self.canevas.tag_bind(point, "<Double-Button-1>", lambda e, n=name, d=description: self.show_info(n, d))
+            if name == "Ludivisites Lyon":
+                point = self.canevas.create_oval(shifted[0] - 5, shifted[1] - 5, shifted[0] + 5, shifted[1] + 5, fill="purple")
+            else:
+                point = self.canevas.create_oval(shifted[0] - 5, shifted[1] - 5, shifted[0] + 5, shifted[1] + 5, fill="red")
+            self.canevas.tag_bind(point, "<Double-Button-1>", lambda e, n=name, d=description: self.show_info(n, d, True))
 
     def draw_path(self):
-        """Draw a path on the map, centered and scaled like the draw_communes method."""
-        self.canevas.update_idletasks()
+        """Draw the paths of all trips on the map, connecting sites with lines and marking start and end points."""
         canvas_width = self.winfo_screenwidth()
         canvas_height = self.winfo_screenheight()
         cx, cy = self.centroid
@@ -181,24 +178,32 @@ class MapWindow(tk.Tk):
 
         scale = 52
 
-        trips = get_all_trips(self.user.id, canvas_width, canvas_height)
+        trips = get_all_trips(self.user.id, self.sites)
         for trip in trips:
             path = trip.sites_visited
+            name_start = trip.start_site.name
+            name_end = trip.end_site.name
+            description_start = trip.start_site.description
+            description_end = trip.end_site.description
             for i in range(len(path) - 1):
-                x1, y1 = path[i].coordinates
-                x2, y2 = path[i + 1].coordinates
+                x1, y1 = path[i].coordinates_canvas
+                x2, y2 = path[i + 1].coordinates_canvas
                 shifted1 = ((x1 - cx) * scale + canvas_center_x, (y1 - cy) * scale + canvas_center_y)
                 shifted2 = ((x2 - cx) * scale + canvas_center_x, (y2 - cy) * scale + canvas_center_y)
-                self.canevas.create_line(shifted1[0], shifted1[1], shifted2[0], shifted2[1], fill="yellow", width=2)
 
-                # Draw circle at every point in the path
                 if i == 0:
-                    self.canevas.create_oval(shifted1[0] - 5, shifted1[1] - 5, shifted1[0] + 5, shifted1[1] + 5, fill="blue")
+                    site = self.canevas.create_oval(shifted1[0] - 5, shifted1[1] - 5, shifted1[0] + 5, shifted1[1] + 5, fill="cyan")
+                    self.canevas.tag_bind(site, "<Double-Button-1>", lambda e, n=name_start, d=description_start: self.show_info(n, d, True))
                 elif i == len(path) - 2:
-                    self.canevas.create_oval(shifted1[0] - 5, shifted1[1] - 5, shifted1[0] + 5, shifted1[1] + 5, fill="green")
-                    self.canevas.create_oval(shifted2[0] - 5, shifted2[1] - 5, shifted2[0] + 5, shifted2[1] + 5, fill="blue")
-                else:
-                    self.canevas.create_oval(shifted1[0] - 5, shifted1[1] - 5, shifted1[0] + 5, shifted1[1] + 5, fill="green")
+                    site = self.canevas.create_oval(shifted2[0] - 5, shifted2[1] - 5, shifted2[0] + 5, shifted2[1] + 5, fill="blue")
+                    self.canevas.tag_bind(site, "<Double-Button-1>", lambda e, n=name_end, d=description_end: self.show_info(n, d, True))
+
+                line = self.canevas.create_line(shifted1[0], shifted1[1], shifted2[0], shifted2[1], fill="yellow", width=4)
+                self.canevas.tag_bind(line, "<Double-Button-1>", lambda e, t=trip: self.show_trip_details(t))
+
+    def show_trip_details(self, trip):
+        """Open the trip details window for a specific trip."""
+        TripDetailsWindow(self, trip)
 
     def change_password(self, event):
         """Open the window for changing the password."""

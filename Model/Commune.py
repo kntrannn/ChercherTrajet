@@ -1,11 +1,14 @@
 class Commune:
-    __slots__ = ["id", "name", "description", "coordinates"]
+    """
+    Represents a Commune with its ID, name, description, and coordinates.
+    The coordinates are expected to be in the format (longitude, latitude) or (x, y).
+    """
 
-    def __init__(self, id, name, description, coordinates):
+    __slots__ = ["id", "name", "description", "coordinates_map", "coordinates_canvas"]
+
+    def __init__(self, id, name, description, coordinates_map, coordinates_canvas=None):
         self.id = id
         self.name = name
         self.description = description
-        self.coordinates = coordinates
-
-    def __str__(self):
-        return f"{self.name}, {self.description}, {self.coordinates}\n"
+        self.coordinates_map = coordinates_map
+        self.coordinates_canvas = coordinates_canvas

@@ -28,7 +28,7 @@ class ChangePasswordWindow(tk.Toplevel):
         super().__init__()
         self.master = master
         self.user = master.user
-        self.title("Your personal travel map")
+        self.title("Change Password")
         self.resizable(False, False)
 
         # Apply custom color theme

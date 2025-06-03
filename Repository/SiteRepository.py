@@ -15,35 +15,3 @@ def get_list_of_sites():
             site = Site(site_data["id"], site_data["name"], site_data["description"], site_data["coordinates"])
             sites.append(site)
         return sites
-
-def get_site_by_name(name):
-    """
-    Retrieves a Site object by its name.
-
-    Args:
-        name (str): The name of the site.
-
-    Returns:
-        Site: The Site object with the specified name, or None if not found.
-    """
-    sites = get_list_of_sites()
-    for site in sites:
-        if site.name == name:
-            return site
-    return None
-
-def get_site_by_id(site_id):
-    """
-    Retrieves a Site object by its ID.
-
-    Args:
-        site_id (int): The ID of the site.
-
-    Returns:
-        Site: The Site object with the specified ID, or None if not found.
-    """
-    sites = get_list_of_sites()
-    for site in sites:
-        if site.id == site_id:
-            return site
-    return None
