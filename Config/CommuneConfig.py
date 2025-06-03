@@ -2,7 +2,7 @@ import json
 from openai import OpenAI
 client = OpenAI()
 
-def load_json_to_database():
+def load_json_to_database(): #chat GPT
     """
     Reads a GeoJSON file containing communes in Auvergne-Rhône-Alpes, France,
     extracts relevant information, and writes it to a JSON file in the database.
@@ -26,7 +26,7 @@ def load_json_to_database():
     with open("Database/Entity/communes.json", "w", encoding="utf-8") as f:
         json.dump(communes, f, indent=4)
 
-def generate_description(place):
+def generate_description(place): #chat GPT
     """
     Generates a brief description of a given place using OpenAI's GPT-3.5 Turbo model.
     Args:
