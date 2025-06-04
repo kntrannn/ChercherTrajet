@@ -166,7 +166,7 @@ def filter_points(points, min_distance):
     kept_points = []
     for site in points:
         p = site.coordinates_canvas
-        if all(distance(p, kp.coordinates_canvas) >= min_distance for kp in kept_points):
-            kept_points.append(site)
+        if all(distance(p, kp.coordinates_canvas) >= min_distance for kp in kept_points): # all([]) est true par convention
+            kept_points.append(site)                               # a simple way to write conjunction proposed by AI
     
     return kept_points
