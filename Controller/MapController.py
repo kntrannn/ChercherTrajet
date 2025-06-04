@@ -16,7 +16,7 @@ def get_all_trips(user_id, sites):
 
 def get_all_communes_with_x_y(canvas_width, canvas_height):
     """
-    Retrieves a list of all communes.
+    Retrieves a list of all communes. (calculate all the canvas coordinates for communes)
     Args:
         canvas_width (int): Width of the canvas.
         canvas_height (int): Height of the canvas.
