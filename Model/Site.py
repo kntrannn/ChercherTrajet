@@ -11,4 +11,4 @@ class Site:
         self.name = name
         self.description = description
         self.coordinates_map = coordinates_map
-        self.coordinates_canvas = coordinates_canvas
+        self.coordinates_canvas = coordinates_canvas   # two sets of coordinates, one for real one for the program
