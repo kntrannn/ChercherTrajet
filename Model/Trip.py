@@ -23,7 +23,7 @@ class Trip:
             total_distance += self.haversine_distance(self.sites_visited[i].coordinates_map, self.sites_visited[i + 1].coordinates_map)
         self.distance = total_distance
 
-    def haversine_distance(self, coord1, coord2): #chat GPT 
+    def haversine_distance(self, coord1, coord2): #chat GPT: a very scientific way to calculate distance
         """
         Calculates the Haversine distance between two points on the Earth specified by their latitude and longitude.
         Args:
