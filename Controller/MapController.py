@@ -151,7 +151,7 @@ def distance(p1, p2):
     Returns:
         float: The Euclidean distance between the two points.
     """
-    return math.hypot(p1[0] - p2[0], p1[1] - p2[1])
+    return math.hypot(p1[0] - p2[0], p1[1] - p2[1])  # norme euclidienne: hypotenuse
 
 def filter_points(points, min_distance):
     """
@@ -168,5 +168,5 @@ def filter_points(points, min_distance):
         p = site.coordinates_canvas
         if all(distance(p, kp.coordinates_canvas) >= min_distance for kp in kept_points): # all([]) est true par convention
             kept_points.append(site)                               # a simple way to write conjunction proposed by AI
-                                                                # distance is a math function
+                                                                # distance is function write before
     return kept_points
