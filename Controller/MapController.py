@@ -140,7 +140,7 @@ def list_depth(lst):
     """
     if not isinstance(lst, list):
         return 0            # condition initiale
-    return 1 + max(list_depth(item) for item in lst)  # very classique recurrence fonction, usually used in Ocaml
+    return 1 + max(list_depth(item) for item in lst)  # very classique recurrence fonction 
 
 def distance(p1, p2):
     """
