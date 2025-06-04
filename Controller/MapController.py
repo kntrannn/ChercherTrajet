@@ -130,7 +130,7 @@ def convert_whole_coordinates(coordinates, l_canvas, h_canvas):
 
 def list_depth(lst):
     """
-    Determines the depth of a nested list.
+    Determines the depth of a nested list.  # proposed by AI
 
     Args:
         lst (list): The nested list.
@@ -139,8 +139,8 @@ def list_depth(lst):
         int: The depth of the list.
     """
     if not isinstance(lst, list):
-        return 0
-    return 1 + max(list_depth(item) for item in lst)
+        return 0            # condition initiale
+    return 1 + max(list_depth(item) for item in lst)  # very classique recurrence fonction, usually used in Ocaml
 
 def distance(p1, p2):
     """
