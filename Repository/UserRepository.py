@@ -11,8 +11,8 @@ def check_user_existence(username):
     Returns:
         bool: True if the user exists, False otherwise.
     """
-    with open("Database/Entity/users.json", "r") as file:
-        users = json.load(file)
+    with open("Database/Entity/users.json", "r") as file:  #structure propose by AI, simplifies resource management
+        users = json.load(file)            # ensures that resources are properly cleaned up even if an error occurs
         for user in users:
             if user["username"] == username:
                 return True
