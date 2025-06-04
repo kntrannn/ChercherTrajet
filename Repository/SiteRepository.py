@@ -8,7 +8,7 @@ def get_list_of_sites():
     Returns:
         list: A list of Site objects.
     """
-    with open("Database/Entity/sites.json", "r", encoding="utf-8") as file:
+    with open("Database/Entity/sites.json", "r", encoding="utf-8") as file:    # structure with ... as ...
         data = json.load(file)
         sites = []
         for site_data in data:
