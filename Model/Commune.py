@@ -10,5 +10,5 @@ class Commune:
         self.id = id
         self.name = name
         self.description = description
-        self.coordinates_map = coordinates_map
+        self.coordinates_map = coordinates_map  # a list of coordinates that represente the border of a region
         self.coordinates_canvas = coordinates_canvas
